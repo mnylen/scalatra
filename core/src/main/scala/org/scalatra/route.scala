@@ -1,6 +1,6 @@
 package org.scalatra
 
-import ScalatraKernel.{Action, MultiParams}
+import ScalatraKernel.MultiParams
 import util.MultiMap
 
 /**

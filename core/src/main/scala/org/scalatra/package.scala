@@ -15,6 +15,8 @@ package object scalatra {
     def removeAttribute(name: String): Unit
   }
 
+  type Action = () => Any
+
   @deprecated("Use CsrfTokenSupport", "2.0")
   type CSRFTokenSupport = CsrfTokenSupport
 

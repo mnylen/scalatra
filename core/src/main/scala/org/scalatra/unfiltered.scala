@@ -14,7 +14,7 @@ import scala.annotation.tailrec
 import scala.collection.JavaConversions._
 import scala.collection.mutable.ConcurrentMap
 import java.util.concurrent.ConcurrentHashMap
-import ScalatraKernel.{Action, MultiParams}
+import ScalatraKernel.MultiParams
 import util.{MapWithIndifferentAccess, MultiMapHeadView, MultiMap}
 
 trait UnfilteredDsl {
