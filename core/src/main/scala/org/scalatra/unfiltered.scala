@@ -1,13 +1,11 @@
-package com.example
+package org.scalatra
 
-import _root_.org.scalatra.{RouteMatcher, Route}
 import unfiltered.request._
 import unfiltered.response._
 import org.clapper.avsl.Logger
-import util._
+import scala.util._
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import matching.Regex
-import org.scalatra._
 
 import java.lang.{Integer => JInteger}
 import javax.servlet.ServletContext
@@ -19,8 +17,8 @@ import java.util.concurrent.ConcurrentHashMap
 import ScalatraKernel.{Action, MultiParams}
 import util.{MapWithIndifferentAccess, MultiMapHeadView, MultiMap}
 
-trait CoreDsl {
-  
+trait UnfilteredDsl {
+
   type UnfilteredErrorHandler = PartialFunction[scala.Throwable, ResponseFunction[Any]]
   def params: Map[String, String]
 
@@ -156,7 +154,7 @@ trait ImplicitResponses {
     Html(xml)
 }
 
-trait Scalatra extends CoreDsl with ImplicitResponses {
+trait Scalatra extends UnfilteredDsl with ImplicitResponses {
 
   protected lazy val routes = new UnfilteredRouteRegistry[Any]()
 
@@ -318,41 +316,4 @@ trait Scalatra extends CoreDsl with ImplicitResponses {
 
   protected var errorHandler: UnfilteredErrorHandler = { case t => throw t }
   def error(handler: UnfilteredErrorHandler) = errorHandler = handler orElse errorHandler
-}
-
-class App extends Scalatra {
-
-  get ("/html") {
-    <html>
-      <head></head>
-      <body>Hello html</body>
-    </html>
-  }
-
-  get ("/hello") {
-     "hello world, hello request:"+request.toString
-  }
-
-  get ("/") {
-     "hello index page!"
-  }
-
-  get("/param/:value") {
-    "hello %s" format params('value)
-  }
-}
-
-
-/** embedded server */
-object Server {
-  val logger = Logger(Server.getClass)
-  def main(args: Array[String]) {
-    val http = unfiltered.jetty.Http.anylocal // this will not be necessary in 0.4.0
-    http.context("/assets") { _.resources(new java.net.URL(getClass().getResource("/www/css"), ".")) }
-      .filter(new App with unfiltered.filter.Plan).run({ svr =>
-        unfiltered.util.Browser.open(http.url)
-      }, { svr =>
-        logger.info("shutting down server")
-      })
-  }
 }
