@@ -85,7 +85,16 @@ object ScalatraBuild extends Build {
       else
         Some("Sonatype Nexus Release Staging" at "https://oss.sonatype.org/service/local/staging/deploy/maven2")
     },
-    resolvers += ScalaToolsSnapshots
+    resolvers += ScalaToolsSnapshots,
+    ivyXML :=
+      <dependencies>
+        <dependency org="net.databinder" name="unfiltered-filter_2.9.1" rev="0.5.0">
+          <exclude org="javax.servlet" name="servlet-api" />
+        </dependency>
+        <dependency org="net.databinder" name="unfiltered-jetty_2.9.1" rev="0.5.0">
+          <exclude org="javax.servlet" name="servlet-api" />
+        </dependency>
+      </dependencies>
 /* This is crashing unidoc.
     autoCompilerPlugins := true,
     addCompilerPlugin("org.scala-tools.sxr" % "sxr_2.9.0" % "0.2.7"),
@@ -95,12 +104,15 @@ object ScalatraBuild extends Build {
 */
   )
 
+  val javaNetMaven2Repo = "Java.net Maven 2 Repo" at "http://download.java.net/maven/2"
   val sonatypeSnapshots = "Sonatype Nexus Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots"
 
   object Dependencies {
     def antiXml(scalaVersion: String) = {
       "com.codecommit" %% "anti-xml" % "0.2"
     }
+
+    val avsl = "org.clapper" %% "avsl" % "0.3.6"
 
     val base64 = "net.iharder" % "base64" % "2.3.8"
 
@@ -164,6 +176,10 @@ object ScalatraBuild extends Build {
 
     val testng = "org.testng" % "testng" % "6.1.1" % "optional"
 
+    private val unfilteredVersion = "0.5.0"
+    val unfilteredFilter = "net.databinder" %% "unfiltered-filter" % unfilteredVersion
+    val unfilteredJetty = "net.databinder" %% "unfiltered-jetty" % unfilteredVersion
+
     val atmosphere = "org.atmosphere" % "atmosphere-runtime" % "0.7.2"
   }
   import Dependencies._
@@ -184,8 +200,9 @@ object ScalatraBuild extends Build {
   lazy val scalatraCore = Project("scalatra", file("core"),
     settings = scalatraSettings)
     .settings(
-      libraryDependencies ++= Seq(servletApi),
-      description := "The core Scalatra framework")
+      libraryDependencies ++= Seq(servletApi, avsl, unfilteredFilter, unfilteredJetty),
+      description := "The core Scalatra framework",
+      resolvers ++= Seq(javaNetMaven2Repo, sonatypeSnapshots))
     .testWithScalatraTest
 
   lazy val scalatraAuth = Project("scalatra-auth", file("auth"),
