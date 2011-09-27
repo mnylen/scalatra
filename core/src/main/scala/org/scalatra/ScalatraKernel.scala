@@ -19,6 +19,8 @@ object ScalatraKernel
 {
   type MultiParams = MultiMap
 
+  type Action = () => Any
+
   @deprecated("Use HttpMethods.methods", "2.0")
   val httpMethods = HttpMethod.methods map { _.toString }
 
