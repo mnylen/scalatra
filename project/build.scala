@@ -38,7 +38,7 @@ object ScalatraBuild extends Build {
     id = "scalatra",
     base = file("core"),
     settings = scalatraSettings ++ Seq(
-      libraryDependencies ++= Seq(servletApi, slf4jSimple % "test"),
+      libraryDependencies ++= Seq(servletApi, sff4sApi, slf4jSimple % "test"),
       description := "The core Scalatra framework"
     )
   ) dependsOn(Seq(scalatraSpecs2, scalatraSpecs, scalatraScalatest) map { _ % "test->compile" } :_*)
@@ -56,7 +56,7 @@ object ScalatraBuild extends Build {
     id = "scalatra-akka",
     base = file("akka"),
     settings = scalatraSettings ++ Seq(
-      libraryDependencies ++= Seq(akka, akkaTestkit),
+      libraryDependencies ++= Seq(akka, akkaTestkit, sff4sAkka),
       resolvers += "Akka Repo" at "http://akka.io/repository",
       description := "Scalatra akka integration module",
       // Akka only supports 2.9.x, so don't build this module for 2.8.x.
@@ -237,6 +237,10 @@ object ScalatraBuild extends Build {
     }
 
     val servletApi = "javax.servlet" % "javax.servlet-api" % "3.0.1" % "provided"
+
+    private def sff4s(artifact: String) = "com.eed3si9n" %% artifact % "0.1.0"
+    val sff4sApi = sff4s("sff4s-api")
+    val sff4sAkka = sff4s("sff4s-akka")
 
     val slf4jSimple = "org.slf4j" % "slf4j-simple" % "1.6.4"
 
