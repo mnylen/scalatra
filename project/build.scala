@@ -38,7 +38,7 @@ object ScalatraBuild extends Build {
     id = "scalatra",
     base = file("core"),
     settings = scalatraSettings ++ Seq(
-      libraryDependencies ++= Seq(servletApi, sff4sApi, slf4jSimple % "test"),
+      libraryDependencies <++= scalaVersion(v => Seq(servletApi, sff4sApi(v), slf4jSimple % "test")),
       description := "The core Scalatra framework"
     )
   ) dependsOn(Seq(scalatraSpecs2, scalatraSpecs, scalatraScalatest) map { _ % "test->compile" } :_*)
@@ -56,7 +56,7 @@ object ScalatraBuild extends Build {
     id = "scalatra-akka",
     base = file("akka"),
     settings = scalatraSettings ++ Seq(
-      libraryDependencies ++= Seq(akka, akkaTestkit, sff4sAkka),
+      libraryDependencies <++= scalaVersion(v => Seq(akkaActor(v), akkaTestkit(v), sff4sAkka(v)).flatten),
       resolvers += "Akka Repo" at "http://akka.io/repository",
       description := "Scalatra akka integration module",
       // Akka only supports 2.9.x, so don't build this module for 2.8.x.
@@ -181,8 +181,12 @@ object ScalatraBuild extends Build {
 
     val base64 = "net.iharder" % "base64" % "2.3.8"
 
-    val akka = "se.scalablesolutions.akka" % "akka-actor" % "1.3-RC4"
-    val akkaTestkit = "se.scalablesolutions.akka" % "akka-testkit" % "1.3-RC4" % "test"
+    private def akkaDep(scalaVersion: String, name: String) = scalaVersion match {
+      case v if v startsWith "2.8." => None
+      case _ => Some("se.scalablesolutions.akka" % name % "1.3-RC4")
+    }
+    def akkaActor(scalaVersion: String) = akkaDep(scalaVersion, "akka-actor")
+    def akkaTestkit(scalaVersion: String) = akkaDep(scalaVersion, "akka-testkit") map { _ % "test" }
 
     val commonsFileupload = "commons-fileupload" % "commons-fileupload" % "1.2.1"
     val commonsIo = "commons-io" % "commons-io" % "2.1"
@@ -238,9 +242,17 @@ object ScalatraBuild extends Build {
 
     val servletApi = "javax.servlet" % "javax.servlet-api" % "3.0.1" % "provided"
 
-    private def sff4s(artifact: String) = "com.eed3si9n" %% artifact % "0.1.0"
-    val sff4sApi = sff4s("sff4s-api")
-    val sff4sAkka = sff4s("sff4s-akka")
+    private def sff4s(scalaVersion: String, artifact: String) = {
+      "com.eed3si9n" % ("%s_%s".format(artifact, scalaVersion match { 
+        case v if v startsWith "2.8." => "2.8.1"
+        case v if v startsWith "2.9." => "2.9.1"
+      })) % "0.1.0"
+    }
+    def sff4sApi(scalaVersion: String) = sff4s(scalaVersion, "sff4s-api")
+    def sff4sAkka(scalaVersion: String) = scalaVersion match {
+      case v if v startsWith "2.8." => None
+      case _ => Some(sff4s(scalaVersion, "sff4s-akka"))
+    }
 
     val slf4jSimple = "org.slf4j" % "slf4j-simple" % "1.6.4"
 
