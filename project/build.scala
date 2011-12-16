@@ -31,7 +31,7 @@ object ScalatraBuild extends Build {
     aggregate = Seq(scalatraCore, scalatraAuth, scalatraFileupload,
       scalatraScalate, scalatraSocketio, scalatraLiftJson, scalatraAntiXml,
       scalatraTest, scalatraScalatest, scalatraSpecs, scalatraSpecs2,
-      scalatraExample, scalatraAkka)
+      scalatraExample, scalatraAkka, scalatraAkka2)
   )
 
   lazy val scalatraCore = Project(
@@ -59,6 +59,19 @@ object ScalatraBuild extends Build {
       libraryDependencies ++= Seq(akka, akkaTestkit),
       resolvers += "Akka Repo" at "http://akka.io/repository",
       description := "Scalatra akka integration module",
+      // Akka only supports 2.9.x, so don't build this module for 2.8.x.
+      skip <<= scalaVersion map { v => v startsWith "2.8." }
+      // TODO don't publish or publish-local when we skip
+    ) 
+  ) dependsOn(scalatraCore % "compile;test->test;provided->provided")
+
+  lazy val scalatraAkka2 = Project(
+    id = "scalatra-akka2",
+    base = file("akka2"),
+    settings = scalatraSettings ++ Seq(
+      libraryDependencies ++= Seq(akka2, akka2Testkit),
+      resolvers += "Typesafe Repo" at "http://repo.typesafe.com/typesafe/releases",
+      description := "Scalatra Akka2 integration module",
       // Akka only supports 2.9.x, so don't build this module for 2.8.x.
       skip <<= scalaVersion map { v => v startsWith "2.8." }
       // TODO don't publish or publish-local when we skip
@@ -169,6 +182,12 @@ object ScalatraBuild extends Build {
   )
 
   object Dependencies {
+    val akka = "se.scalablesolutions.akka" % "akka-actor" % "1.3-RC4"
+    val akkaTestkit = "se.scalablesolutions.akka" % "akka-testkit" % "1.3-RC4" % "test"
+
+    val akka2 = "com.typesafe.akka" % "akka-actor" % "2.0-M1"
+    val akka2Testkit = "com.typesafe.akka" % "akka-testkit" % "2.0-M1" % "test"
+
     def antiXml(scalaVersion: String) = {
       val libVersion = scalaVersion match {
         case x if x startsWith "2.8." => "0.2"
@@ -180,9 +199,6 @@ object ScalatraBuild extends Build {
     val atmosphere = "org.atmosphere" % "atmosphere-runtime" % "0.7.2"
 
     val base64 = "net.iharder" % "base64" % "2.3.8"
-
-    val akka = "se.scalablesolutions.akka" % "akka-actor" % "1.3-RC4"
-    val akkaTestkit = "se.scalablesolutions.akka" % "akka-testkit" % "1.3-RC4" % "test"
 
     val commonsFileupload = "commons-fileupload" % "commons-fileupload" % "1.2.1"
     val commonsIo = "commons-io" % "commons-io" % "2.1"
