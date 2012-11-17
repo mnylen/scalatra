@@ -51,6 +51,7 @@ abstract class ScalatraServlet
   extends HttpServlet
   with ServletBase
   with Initializable {
+
   override def service(request: HttpServletRequest, response: HttpServletResponse) {
     handle(request, response)
   }

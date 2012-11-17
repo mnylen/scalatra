@@ -57,7 +57,8 @@ object ScalatraBuild extends Build {
         grizzledSlf4j,
         backchatRl,
         jodaTime,
-        jodaConvert
+        jodaConvert,
+        commonsCodec
       ),
       description := "The core Scalatra framework"
     )
@@ -266,7 +267,7 @@ object ScalatraBuild extends Build {
     val commonsFileupload = "commons-fileupload" % "commons-fileupload" % "1.2.1"
     val commonsIo = "commons-io" % "commons-io" % "2.1"
     val commonsLang3 = "org.apache.commons" % "commons-lang3" % "3.1"
-
+    val commonsCodec = "commons-codec" % "commons-codec" % "1.7"
     val httpClient = "org.apache.httpcomponents" % "httpclient" % "4.2"
 
     val httpMime   = "org.apache.httpcomponents" % "httpmime"   % "4.2"
